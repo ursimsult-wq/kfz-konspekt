@@ -1,0 +1,22 @@
+{
+  "name": "KFZ GP Teil 1 Vollkonspekt",
+  "short_name": "KFZ Konspekt",
+  "description": "Umfassender Lernleitfaden für KFZ Mechatroniker GP Teil 1",
+  "start_url": "/KFZ_GP_Teil1.html",
+  "display": "standalone",
+  "background_color": "#080b10",
+  "theme_color": "#f5c518",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

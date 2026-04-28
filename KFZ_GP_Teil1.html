@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KFZ Konspekt">
+<link rel="manifest" href="manifest.json">
+<title>KFZ GP Teil 1 – VOLLKONSPEKT 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+:root{
+  --bg:#080b10;--surface:#0f1318;--card:#161c24;--card2:#1c232d;
+  --border:#252d38;--border2:#2e3a47;
+  --yellow:#f5c518;--cyan:#00d4ff;--green:#39ff88;--red:#ff4757;
+  --orange:#ff8c00;--purple:#b975ff;--pink:#ff6b9d;
+  --text:#dde4ef;--muted:#5a6a80;--mono:'JetBrains Mono',monospace;
+  --sans:'Outfit',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.65;min-height:100vh}
+
+/* HEADER */
+header{background:linear-gradient(160deg,#0e1520 0%,#060a10 100%);border-bottom:3px solid var(--yellow);padding:22px 18px 16px;position:sticky;top:0;z-index:200;box-shadow:0 4px 30px rgba(0,0,0,.7)}
+.h-eyebrow{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px}
+.h-title{font-size:20px;font-weight:800;color:#fff;line-height:1.1}
+.h-title span{color:var(--yellow)}
+.h-meta{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.h-chip{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--border2)}
+.h-chip.hot{background:rgba(255,71,87,.12);border-color:var(--red);color:#ff8a93}
+.h-chip.ok{background:rgba(57,255,136,.08);border-color:var(--green);color:#7affc0}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;white-space:nowrap;padding:0}
+nav::-webkit-scrollbar{display:none}
+.nav-inner{display:inline-flex;gap:2px;padding:8px 12px}
+nav button{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:5px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.5px}
+nav button:hover{background:var(--card);color:var(--text);border-color:var(--border2)}
+nav button.active{background:var(--yellow);color:#000;font-weight:700;border-color:var(--yellow)}
+
+/* SEARCH */
+.search-bar{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.search-bar input{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:8px 14px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none}
+.search-bar input:focus{border-color:var(--cyan)}
+.search-bar input::placeholder{color:var(--muted)}
+
+/* MAIN */
+main{max-width:820px;margin:0 auto;padding:18px 14px 80px}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.topic-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.tc-head{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .2s}
+.tc-head:hover{background:var(--card2)}
+.tc-icon{font-size:20px;flex-shrink:0}
+.tc-info{flex:1}
+.tc-title{font-size:15px;font-weight:700}
+.tc-sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
+.tc-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px;flex-shrink:0}
+.tc-badge.hot{background:rgba(255,71,87,.15);color:var(--red)}
+.tc-badge.mid{background:rgba(245,197,24,.12);color:var(--yellow)}
+.tc-badge.low{background:rgba(57,255,136,.08);color:var(--green)}
+.tc-chev{color:var(--muted);font-size:11px;transition:transform .3s;flex-shrink:0}
+.tc-head.open .tc-chev{transform:rotate(180deg)}
+.tc-body{display:none;border-top:1px solid var(--border);padding:16px}
+.tc-body.open{display:block}
+
+/* CONTENT ELEMENTS */
+.section-label{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:14px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+. section-label:first-child{margin-top:0}
+
+ul.kfz-list{list-style:none;display:flex;flex-direction:column;gap:5px;margin:6px 0}
+ul.kfz-list li{padding:7px 12px;background:rgba(255,255,255,.03);border-left:2px solid var(--border2);border-radius:0 5px 5px 0;font-size:14px;display:flex;gap:8px}
+ul.kfz-list li .bull{color:var(--yellow);flex-shrink:0;font-weight:700}
+ul.kfz-list li.imp{border-left-color:var(--red)}
+ul.kfz-list li.imp .bull{color:var(--red)}
+ul.kfz-list li.tip{border-left-color:var(--green)}
+ul.kfz-list li.tip .bull{color:var(--green)}
+
+/* TABLE */
+.kfz-table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+.kfz-table th{background:rgba(0,212,255,.08);color:var(--cyan);font-family:var(--mono);font-size:10px;text-transform:uppercase;padding:8px 10px;text-align:left;letter-spacing:.5px}
+.kfz-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.kfz-table tr:last-child td{border-bottom:none}
+.kfz-table tr:hover td{background:rgba(255,255,255,.02)}
+.kfz-table td b{color:var(--yellow)}
+
+/* VALUE GRID */
+.val-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.val-card{background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:7px;padding:10px 12px}
+.val-card.highlight{border-color:var(--yellow)}
+.vc-label{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:3px}
+.vc-value{font-size:17px;font-weight:700;color:var(--yellow);font-family:var(--mono)}
+.vc-note{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* FORMULA */
+.formula{background:#03080f;border:1px solid var(--cyan);border-radius:7px;padding:12px 16px;font-family:var(--mono);font-size:13px;margin:8px 0}
+.formula .f-line{color:var(--cyan);margin:3px 0}
+.formula .f-comment{color:var(--muted);font-size:11px;margin:2px 0}
+.formula .f-result{color:var(--green);font-weight:700}
+
+/* WARN/TIP/INFO */
+.warn{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.4);border-radius:7px;padding:10px 14px;font-size:13px;color:#ff8a93;margin:10px 0;display:flex;gap:8px;align-items:flex-start}
+.tip{background:rgba(57,255,136,.06);border:1px solid rgba(57,255,136,.3);border-radius:7px;padding:10px 14px;font-size:13px;color:#7affc0;margin:10px 0;display:flex;gap:8px;align-items:flex-start}
+.info{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.3);border-radius:7px;padding:10px 14px;font-size:13px;color:#7ae8ff;margin:10px 0;display:flex;gap:8px;align-items:flex-start}
+
+/* SIGNAL BOX */
+.signal{background:#020509;border:1px solid var(--border2);border-radius:7px;padding:13px 14px;font-family:var(--mono);font-size:12px;color:var(--green);line-height:2;white-space:pre;overflow-x:auto;margin:8px 0}
+
+/* BADGE INLINE */
+.badge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-family:var(--mono);font-weight:600}
+.b-ok{background:rgba(57,255,136,.15);color:var(--green)}
+.b-warn{background:rgba(245,197,24,.15);color:var(--yellow)}
+.b-err{background:rgba(255,71,87,.15);color:var(--red)}
+
+/* KLAPPBOX MINI */
+.mini-toggle{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;margin:8px 0}
+.mini-head{padding:9px 12px;cursor:pointer;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;color:var(--yellow)}
+.mini-body{display:none;padding:10px 12px;border-top:1px solid var(--border);font-size:13px}
+.mini-body.show{display:block}
+
+/* HOME SPECIAL */
+.lf-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+.lf-item{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;border-left:3px solid var(--yellow)}
+.lf-item.lf2{border-left-color:var(--cyan)}
+.lf-item.lf3{border-left-color:var(--green)}
+.lf-item.lf4{border-left-color:var(--orange)}
+.lf-item.lf5{border-left-color:var(--purple)}
+.lf-item.lf6{border-left-color:var(--pink)}
+.lf-num{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:3px}
+.lf-name{font-size:14px;font-weight:700}
+.lf-desc{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* PROGRESS */
+.prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px}
+.prog-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.checks{display:flex;flex-direction:column;gap:7px}
+.check-item{display:flex;align-items:center;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.check-item:last-child{border-bottom:none}
+.check-item input{accent-color:var(--green);width:16px;height:16px;cursor:pointer;flex-shrink:0}
+.check-item label{cursor:pointer}
+
+/* COUNTDOWN */
+.countdown{background:linear-gradient(135deg,#120a00,#0a0a00);border:2px solid var(--yellow);border-radius:10px;padding:16px;margin-bottom:14px;text-align:center}
+.cd-days{font-family:var(--mono);font-size:52px;font-weight:700;color:var(--yellow);line-height:1}
+.cd-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+.cd-date{color:var(--red);font-size:12px;font-family:var(--mono);margin-top:6px}
+
+/* SUCHE */
+.search-result{display:none}
+.search-result.found{background:rgba(245,197,24,.05);border-left:3px solid var(--yellow)}
+
+/* RESPONSIVE */
+@media(min-width:500px){.val-grid{grid-template-columns:1fr 1fr}}
+
+/* Print hint */
+.no-print{}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-eyebrow">KFZ Mechatroniker · 2. Lehrjahr · Sommer 2026</div>
+  <h1 class="h-title">VOLL<span>KONSPEKT</span> GP Teil 1</h1>
+  <div class="h-meta">
+    <span class="h-chip hot">⏰ 4. Mai 2026</span>
+    <span class="h-chip ok">✅ Lernfelder 1–6</span>
+    <span class="h-chip">📋 15 Themen</span>
+    <span class="h-chip">🔋 Alle Sollwerte</span>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="active" onclick="show('home')">🏠 Start</button>
+    <button onclick="show('grundlagen')">⚡ Grundlagen</button>
+    <button onclick="show('bordnetz')">🔌 Bordnetz</button>
+    <button onclick="show('generator')">⚙️ Generator</button>
+    <button onclick="show('starter')">🔄 Starter</button>
+    <button onclick="show('batterie')">🔋 Batterie</button>
+    <button onclick="show('motor')">🔧 Motor</button>
+    <button onclick="show('kühlung')">🌡️ Kühlung</button>
+    <button onclick="show('schmierung')">🛢️ Ölsystem</button>
+    <button onclick="show('sensoren')">📡 Sensoren</button>
+    <button onclick="show('motorsteuerung')">🖥️ Motorsteuerung</button>
+    <button onclick="show('bremse')">🛑 Bremse</button>
+    <button onclick="show('kupplung')">🔗 Kupplung</button>
+    <button onclick="show('hv')">⚡ HV-System</button>
+    <button onclick="show('wartung')">🔩 Wartung</button>
+    <button onclick="show('formeln')">🧮 Formeln</button>
+  </div>
+</nav>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Suchen... z.B. Spannung, Drehmoment, Zylinder..." oninput="searchContent(this.value)">
+</div>
+
+<main>
+
+<!-- ========== HOME ========== -->
+<div class="section active" id="home">
+
+  <div class="countdown">
+    <div class="cd-days" id="cddays">--</div>
+    <div class="cd-label">Tage bis zur Prüfung</div>
+    <div class="cd-date">📅 Montag, 4. Mai 2026</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-title">// LERNFORTSCHRITT – hak ab was du kannst</div>
+    <div class="checks">
+      <div class="check-item"><input type="checkbox" id="c1"><label for="c1">⚡ Elektrische Grundlagen (U, I, R, P)</label></div>
+      <div class="check-item"><input type="checkbox" id="c2"><label for="c2">🔌 Bordnetz, Klemmen, Schaltpläne lesen</label></div>
+      <div class="check-item"><input type="checkbox" id="c3"><label for="c3">⚙️ Generator – Aufbau, Sollwerte, Fehler</label></div>
+      <div class="check-item"><input type="checkbox" id="c4"><label for="c4">🔄 Starter – Schaltkreis, Messungen</label></div>
+      <div class="check-item"><input type="checkbox" id="c5"><label for="c5">🔋 Batterie – Typen, Prüfen, Wechseln</label></div><div class="check-item"><input type="checkbox" id="c6"><label for="c6">🔧 Motor – Viertakt, Bauteile, Verschleiß</label></div>
+      <div class="check-item"><input type="checkbox" id="c7"><label for="c7">🌡️ Kühlsystem – Kreislauf, Thermostat</label></div>
+      <div class="check-item"><input type="checkbox" id="c8"><label for="c8">🛢️ Ölsystem – Viskosität, Druck, Kontrolle</label></div>
+      <div class="check-item"><input type="checkbox" id="c9"><label for="c9">📡 Sensoren – CKP/CMP/MAF/Lambda/TPS</label></div>
+      <div class="check-item"><input type="checkbox" id="c10"><label for="c10">🖥️ Motorsteuerung – Einspritzung, Zündung</label></div>
+      <div class="check-item"><input type="checkbox" id="c11"><label for="c11">🛑 Bremse – Scheibe, Trommel, ABS</label></div>
+      <div class="check-item"><input type="checkbox" id="c12"><label for="c12">🔗 Kupplung – Aufbau, Funktion</label></div>
+      <div class="check-item"><input type="checkbox" id="c13"><label for="c13">⚡ HV-System – Sicherheit, Freischalten</label></div>
+      <div class="check-item"><input type="checkbox" id="c14"><label for="c14">🔩 Wartung – Service, Inspektion</label></div>
+      <div class="check-item"><input type="checkbox" id="c15"><label for="c15">🧮 Alle Formeln auswendig</label></div>
+    </div>
+  </div>
+
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">📚</span>
+      <div class="tc-info"><div class="tc-title">Lernfelder 1–6 (Offizielle Grundlage)</div><div class="tc-sub">Was laut Lehrplan geprüft wird</div></div>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="lf-grid">
+        <div class="lf-item"><div class="lf-num">LERNFELD 1</div><div class="lf-name">Fahrzeuge warten und inspizieren</div><div class="lf-desc">Service, Pflege, Wartungspläne, HV identifizieren</div></div>
+        <div class="lf-item lf2"><div class="lf-num">LERNFELD 2</div><div class="lf-name">Baugruppen prüfen & austauschen</div><div class="lf-desc">Bremse, Räder, Abgasanlage, Schraubenverbindungen</div></div>
+        <div class="lf-item lf3"><div class="lf-num">LERNFELD 3</div><div class="lf-name">Funktionsstörungen Elektrik</div><div class="lf-desc">Bordnetz, Beleuchtung, Grundschaltungen, HV-Komponenten</div></div>
+        <div class="lf-item lf4"><div class="lf-num">LERNFELD 4</div><div class="lf-name">Umrüstarbeiten nach Kundenwunsch</div><div class="lf-desc">Anbauteile, Zubehör, StVZO</div></div>
+        <div class="lf-item lf5"><div class="lf-num">LERNFELD 5</div><div class="lf-name">Inspektionen & Zusatzarbeiten</div><div class="lf-desc">Motor, Kühlung, Schmierung, Bremse, Kompression</div></div>
+        <div class="lf-item lf6"><div class="lf-num">LERNFELD 6</div><div class="lf-name">Bordnetz / Ladestrom / Start</div><div class="lf-desc">Batterie, Generator, Starter, HV-Freischaltung, Start-Stopp</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">ℹ️ Tippe auf einen Tab oben um das Thema zu öffnen. Alles mit ⭐ ist besonders prüfungsrelevant!</div>
+</div>
+
+<!-- ========== GRUNDLAGEN ELEKTRIK ========== -->
+<div class="section" id="grundlagen">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">⚡</span>
+      <div class="tc-info"><div class="tc-title">Elektrische Grundlagen</div><div class="tc-sub">Spannung, Strom, Widerstand, Leistung</div></div>
+      <span class="tc-badge hot">⭐ SEHR WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Ohmsches Gesetz</div>
+      <div class="formula">
+        <div class="f-line">U = R × I</div>
+        <div class="f-line">I = U / R</div>
+        <div class="f-line">R = U / I</div>
+        <div class="f-comment">U = Spannung in Volt (V) | I = Strom in Ampere (A) | R = Widerstand in Ohm (Ω)</div>
+        <div class="f-result">Beispiel: R=4Ω, I=3A → U = 4×3 = 12V</div>
+      </div>
+      <div class="section-label">Elektrische Leistung</div>
+      <div class="formula"><div class="f-line">P = U × I</div>
+        <div class="f-line">P = U² / R</div>
+        <div class="f-line">P = I² × R</div>
+        <div class="f-comment">P = Leistung in Watt (W)</div>
+        <div class="f-result">Beispiel: U=12V, I=5A → P = 60W</div>
+      </div>
+      <div class="section-label">Reihenschaltung</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> R_ges = R1 + R2 + R3 (Widerstände addieren)</li>
+        <li><span class="bull">›</span> Strom I ist überall gleich</li>
+        <li><span class="bull">›</span> Spannungen addieren sich: U_ges = U1 + U2 + U3</li>
+        <li class="imp"><span class="bull">!</span> Fällt ein Verbraucher aus → alles aus</li>
+      </ul>
+      <div class="section-label">Parallelschaltung</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> 1/R_ges = 1/R1 + 1/R2 (Gesamtwiderstand kleiner als kleinster)</li>
+        <li><span class="bull">›</span> Spannung U ist überall gleich</li>
+        <li><span class="bull">›</span> Ströme addieren sich: I_ges = I1 + I2 + I3</li>
+        <li class="tip"><span class="bull">✓</span> Im Fahrzeug fast alle Verbraucher parallel → Ausfall eines Verbrauchers = Rest läuft weiter</li>
+      </ul>
+      <div class="section-label">Spannungsfall</div>
+      <div class="formula">
+        <div class="f-line">U_fall = I × R_Leitung</div>
+        <div class="f-comment">Max. erlaubt: 0,5V in Starter- & Generatorkabeln</div>
+        <div class="f-line">R_Leitung = (ρ × l) / A</div>
+        <div class="f-comment">ρ(Kupfer) = 0,0178 Ω·mm²/m | l = Länge (m) | A = Querschnitt (mm²)</div>
+      </div>
+      <div class="section-label">Messgeräte – Multimeter</div>
+      <table class="kfz-table">
+        <tr><th>Messung</th><th>Stellung Multimeter</th><th>Anschluss</th></tr>
+        <tr><td><b>Spannung DC</b></td><td>V DC (oder ⎓)</td><td>parallel zum Verbraucher</td></tr>
+        <tr><td><b>Strom DC</b></td><td>A DC</td><td>in Reihe (Leitung unterbrechen!) oder Strommesszange</td></tr>
+        <tr><td><b>Widerstand</b></td><td>Ω (Ohm)</td><td>Bauteil spannungslos! parallel</td></tr>
+        <tr><td><b>Diode prüfen</b></td><td>Diodensymbol</td><td>parallel, Durchlass: 0,4–0,8V</td></tr>
+        <tr><td><b>Frequenz</b></td><td>Hz</td><td>parallel zum Signal</td></tr>
+        <tr><td><b>Durchgang</b></td><td>))) Piepton</td><td>spannungslos, parallel</td></tr>
+      </table>
+      <div class="warn">⚠️ Strom NIEMALS direkt mit Multimeter messen bei Hochstrom-Leitungen (Starter). Immer Strommesszange!</div>
+      <div class="section-label">Klemmenbezeichnungen (Normen)</div>
+      <table class="kfz-table">
+        <tr><th>Klemme</th><th>Bedeutung</th></tr>
+        <tr><td><b>30</b></td><td>Dauerplus (direkt Batterie +, immer aktiv)</td></tr>
+        <tr><td><b>15</b></td><td>Klemme 15 = Zündungsplus (Zündschloss EIN)</td></tr>
+        <tr><td><b>50</b></td><td>Startimpuls (beim Starten)</td></tr>
+        <tr><td><b>31</b></td><td>Masse / Minuspol / Karosserie</td></tr>
+        <tr><td><b>58</b></td><td>Standlicht / Parklicht</td></tr>
+        <tr><td><b>56</b></td><td>Abblendlicht</td></tr>
+        <tr><td><b>56a</b></td><td>Fernlicht + Lichthupe</td></tr>
+        <tr><td><b>54</b></td><td>Bremslicht</td></tr>
+        <tr><td><b>86</b></td><td>Relais – Spule Ansteuerung (+)</td></tr>
+        <tr><td><b>85</b></td><td>Relais – Spule Ansteuerung (–)</td></tr>
+        <tr><td><b>87</b></td><td>Relais – Ausgang (Schließer)</td></tr>
+        <tr><td><b>30 am Relais</b></td><td>Eingang (Dauerplus)</td></tr>
+      </table>
+      <div class="section-label">PWM – Pulsweiten Modulation</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Signal schaltet schnell zwischen HIGH und LOW</li>
+        <li><span class="bull">›</span> Tastverhältnis (TV) = Einschaltzeit / Gesamtzeit × 100%</li>
+        <li><span class="bull">›</span> U_mittel = U_max × TV / 100</li>
+        <li><span class="bull">›</span> Frequenz bleibt konstant, nur TV ändert sich</li><li class="tip"><span class="bull">✓</span> Anwendungen: Lüfter, Leerlaufregler, Generator-Regler, Lambdaheizung</li>
+      </ul>
+      <div class="signal">TV 30%:   ┌──┐        ┌──┐        ┌──┐
+         │  │        │  │        │  │
+    ─────┘  └────────┘  └────────┘  └────
+
+TV 70%:   ┌────────┐  ┌────────┐  ┌────────┐
+         │        │  │        │  │        │
+    ─────┘        └──┘        └──┘        └</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== BORDNETZ ========== -->
+<div class="section" id="bordnetz">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🔌</span>
+      <div class="tc-info"><div class="tc-title">Bordnetz</div><div class="tc-sub">12V / 48V / Beleuchtung / Sicherungen</div></div>
+      <span class="tc-badge hot">⭐ WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Aufbau Bordnetz</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> 12V Bordnetz: Standard PKW (Batterie 12V)</li>
+        <li><span class="bull">›</span> 24V: LKW und Nutzfahrzeuge (2× 12V Batterien in Reihe)</li>
+        <li><span class="bull">›</span> 48V Mild-Hybrid: Zusätzlich für Riemenstartergenerator (RSG)</li>
+        <li><span class="bull">›</span> Masse über Karosserie (Einleiter-System) → spart Kabel</li>
+        <li class="imp"><span class="bull">!</span> Schlechte Masseverbindung = häufigste Fehlerquelle!</li>
+      </ul>
+      <div class="section-label">Sicherungen</div>
+      <table class="kfz-table">
+        <tr><th>Typ</th><th>Erkennungsmerkmal</th><th>Ampere-Farben</th></tr>
+        <tr><td><b>Flachsicherung (Mini/Standard/Maxi)</b></td><td>Kunststoffgehäuse mit Metallbügel</td><td>Gelb=20A, Rot=10A, Blau=15A, Grün=30A</td></tr>
+        <tr><td><b>Glassicherung</b></td><td>Glasröhre, ältere Fahrzeuge</td><td>Beschriftung auf Hülse</td></tr>
+        <tr><td><b>Hochlastsicherung (Maxi/Mega)</b></td><td>Großer Kunststoffblock</td><td>bis 200A, im Motorraum</td></tr>
+      </table>
+      <div class="tip">✓ Sicherung messen: Durchgang bei intakter Sicherung. Kein Durchgang = durchgebrannt.</div>
+      <div class="warn">⚠️ Sicherung brennt immer wieder durch? → Kurzschluss oder Überlast suchen! Nie stärkere Sicherung einbauen!</div>
+      <div class="section-label">Relais</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Schaltet großen Strom mit kleinem Steuerstrom</li>
+        <li><span class="bull">›</span> Spule (Klemme 85/86) → zieht Anker an → Kontakt (30/87) schließt</li>
+        <li><span class="bull">›</span> Widerstand der Spule: ca. 60–100 Ω</li>
+        <li><span class="bull">›</span> Prüfen: Spannung an 85/86 anlegen → Relais muss klicken</li>
+      </ul>
+      <div class="section-label">Schaltplan lesen</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Plus oben, Masse unten</li>
+        <li><span class="bull">›</span> Leitungsquerschnitt steht an der Linie (z.B. 2,5 mm²)</li>
+        <li><span class="bull">›</span> Kabelfarben: rt=rot, sw=schwarz, br=braun(Masse), gr=grün, ge=gelb, ws=weiß</li>
+        <li><span class="bull">›</span> Steckverbinder haben Pin-Nummern</li>
+        <li class="imp"><span class="bull">!</span> Knotenpunkt = Leitungen verbunden | Kreuzung ohne Punkt = keine Verbindung</li>
+      </ul>
+      <div class="section-label">Beleuchtung – Wichtige Werte</div>
+      <table class="kfz-table">
+        <tr><th>Licht</th><th>Leuchtmittel</th><th>Leistung</th></tr>
+        <tr><td>Abblendlicht H4</td><td>Halogen</td><td>55W (Abblend) / 60W (Fern)</td></tr>
+        <tr><td>Abblendlicht H7</td><td>Halogen</td><td>55W</td></tr>
+        <tr><td>Xenon (HID)</td><td>Gasentladung</td><td>35W (aber 3× heller als H7)</td></tr>
+        <tr><td>LED</td><td>Diode</td><td>15–25W</td></tr>
+        <tr><td>Standlicht</td><td>W5W / LED</td><td>5W</td></tr>
+        <tr><td>Bremslicht</td><td>P21W / LED</td><td>21W</td></tr>
+      </table><div class="section-label">Lichtwand – Scheinwerfereinstellung</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Fahrzeug gerade auf ebenen Boden stellen</li>
+        <li><span class="bull">›</span> Reifendruck prüfen, 75 kg auf Fahrersitz (oder Herstellerangabe)</li>
+        <li><span class="bull">›</span> Tank halbvoll</li>
+        <li><span class="bull">›</span> Hell-Dunkel-Grenze: links waagerecht, rechts 15° ansteigend</li>
+        <li class="imp"><span class="bull">!</span> Neigung HDG: –1% pro Meter = bei 10m Abstand liegt HDG 10cm unter Scheinwerfermitte</li>
+        <li><span class="bull">›</span> Xenon: Reinigungsanlage leer, Leuchtweitenregulierung prüfen</li>
+        <li><span class="bull">›</span> LED/Xenon: nach Tausch oft Codierung im Steuergerät nötig</li>
+      </ul>
+      <div class="warn">⚠️ Xenon: Zündspannung bis 25.000V! Niemals ohne Schutz berühren.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== GENERATOR ========== -->
+<div class="section" id="generator">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">⚙️</span>
+      <div class="tc-info"><div class="tc-title">Generator (Lichtmaschine / LiMa)</div><div class="tc-sub">Drehstromgenerator – Aufbau, Messung, Fehler</div></div>
+      <span class="tc-badge hot">⭐ LEHRGANG K1/15</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Funktion</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Wandelt mechanische Energie → elektrische Energie (Wechselstrom)</li>
+        <li><span class="bull">›</span> Gleichrichter wandelt AC → DC für Bordnetz</li>
+        <li><span class="bull">›</span> Lädt die Batterie und versorgt alle Verbraucher bei laufendem Motor</li>
+        <li><span class="bull">›</span> Antrieb über Keilrippenriemen vom Motor</li>
+      </ul>
+      <div class="section-label">Aufbau – alle Teile</div>
+      <table class="kfz-table">
+        <tr><th>Bauteil</th><th>Funktion</th><th>Prüfung</th></tr>
+        <tr><td><b>Rotor (Läufer)</b></td><td>Dreht sich, Erregerwicklung erzeugt Magnetfeld</td><td>Widerstand Schleifringe: 3–8Ω</td></tr>
+        <tr><td><b>Stator (Ständer)</b></td><td>Steht fest, 3 Wicklungen (Phasen), hier wird Spannung induziert</td><td>Phase-Phase: 0,1–0,5Ω</td></tr>
+        <tr><td><b>Gleichrichter</b></td><td>6 Dioden (3 Plus + 3 Minus), AC→DC</td><td>Diodentest: 0,4–0,8V / OL</td></tr>
+        <tr><td><b>Spannungsregler</b></td><td>Regelt Erregerstrom → hält Spannung konstant</td><td>Ausgangsspannung 13,5–14,8V</td></tr>
+        <tr><td><b>Kohlebürsten</b></td><td>Übertragen Erregerstrom auf Schleifringe</td><td>Mindestlänge prüfen (Herstellerangabe)</td></tr>
+        <tr><td><b>Erregerdioden</b></td><td>Versorgen Erregerwicklung, schützen Steuergerät</td><td>Diodentest</td></tr>
+        <tr><td><b>Freilauf</b></td><td>Entkoppelt Generator bei Lastspitzen (moderne Generatoren)</td><td>Dreht in eine Richtung frei</td></tr>
+      </table>
+      <div class="section-label">Sollwerte (Prüfungswerte!)</div>
+      <div class="val-grid">
+        <div class="val-card highlight"><div class="vc-label">Bordspannung (Motor läuft)</div><div class="vc-value">13,5–14,8V</div><div class="vc-note">typisch ~14,2V</div></div>
+        <div class="val-card"><div class="vc-label">Rotor-Widerstand</div><div class="vc-value">3–8 Ω</div><div class="vc-note">an Schleifringen</div></div>
+        <div class="val-card"><div class="vc-label">Stator (Phase-Phase)</div><div class="vc-value">0,1–0,5 Ω</div><div class="vc-note">alle 3 Phasen gleich</div></div>
+        <div class="val-card"><div class="vc-label">Diode (Durchlass)</div><div class="vc-value">0,4–0,8V</div><div class="vc-note">Sperr: OL (unendlich)</div></div>
+        <div class="val-card"><div class="vc-label">Spannungsfall B+ Kabel</div><div class="vc-value">max. 0,5V</div><div class="vc-note">bei Vollast messen</div></div><div class="val-card"><div class="vc-label">Erregerstrom (bei Last)</div><div class="vc-value">2–6 A</div><div class="vc-note">über Schleifringe</div></div>
+      </div>
+      <div class="section-label">Messungen am Generator – Schritt für Schritt</div>
+      <ul class="kfz-list">
+        <li><span class="bull">1</span> Bordspannung messen: DC Volt an Batterie bei laufendem Motor</li>
+        <li><span class="bull">2</span> Rotor-Widerstand: Multimeter Ohm an beiden Schleifringen (Motor aus!)</li>
+        <li><span class="bull">3</span> Stator-Widerstand: Ohm zwischen je 2 Phasen-Anschlüssen</li>
+        <li><span class="bull">4</span> Dioden-Test: Diodentest-Modus an jedem Diodenanschluss</li>
+        <li><span class="bull">5</span> Spannungsfall: Volt zwischen B+ Generator und Batterie + bei laufendem Motor unter Last</li>
+        <li><span class="bull">6</span> Ladestrom: Strommesszange um B+-Kabel (steigt bei zugeschalteten Verbrauchern)</li>
+      </ul>
+      <div class="section-label">Fehlertabelle</div>
+      <table class="kfz-table">
+        <tr><th>Symptom</th><th>Mögliche Ursache</th></tr>
+        <tr><td>Spannung &lt;13,5V</td><td>Regler defekt, Kohlebürsten verschlissen, Diode defekt, Riemen locker</td></tr>
+        <tr><td>Spannung &gt;15V</td><td>Regler defekt (gefährlich! → Batterie beschädigt)</td></tr>
+        <tr><td>Brummgeräusch</td><td>Diode defekt → AC-Anteil im DC (Oszi zeigen)</td></tr>
+        <tr><td>Pfeifen</td><td>Lager defekt oder Riemenspannung falsch</td></tr>
+        <tr><td>Kein Laden trotz normaler Spannung</td><td>Kabelbruch B+, Masseverbindung schlecht</td></tr>
+        <tr><td>Ladekontrollampe leuchtet bei laufendem Motor</td><td>Generator lädt nicht, Klemme DF Signal fehlt</td></tr>
+      </table>
+      <div class="warn">⚠️ Niemals bei laufendem Motor Batterie abklemmen! → Spannungsspitzen zerstören Steuergeräte und Dioden.</div>
+      <div class="tip">✓ PWM-Signal am Generator: Steuergerät sendet PWM an Regler (Klemme DF/DFM) → regelt Erregerstrom → damit Ladespannung variabel (Rekuperation, Start-Stopp)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== STARTER ========== -->
+<div class="section" id="starter">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🔄</span>
+      <div class="tc-info"><div class="tc-title">Starter (Anlasser)</div><div class="tc-sub">Schaltkreis, Hochstrom, Messungen</div></div>
+      <span class="tc-badge hot">⭐ LEHRGANG K1/15</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Aufbau</div>
+      <table class="kfz-table">
+        <tr><th>Bauteil</th><th>Funktion</th></tr>
+        <tr><td><b>Gleichstrommotor</b></td><td>Erzeugt Drehmoment, dreht Ritzel</td></tr>
+        <tr><td><b>Einrückrelais</b></td><td>Schiebt Ritzel vor UND schließt Hauptkontakt (Hochstrom)</td></tr>
+        <tr><td><b>Ritzel</b></td><td>Greift in Zahnkranz des Schwungrades</td></tr>
+        <tr><td><b>Freilauf</b></td><td>Trennt Ritzel automatisch wenn Motor läuft → Schutz</td></tr>
+        <tr><td><b>Kohlebürsten + Kommutator</b></td><td>Stromübertragung auf Anker, verschleißt</td></tr>
+      </table>
+      <div class="section-label">Schaltungsablauf</div>
+      <ul class="kfz-list">
+        <li><span class="bull">1</span> Schlüssel auf START → Klemme 50 bekommt Spannung</li>
+        <li><span class="bull">2</span> Einzugswicklung: Ritzel wird vorgeschoben</li>
+        <li><span class="bull">3</span> Haltewicklung: hält Relais angezogen</li>
+        <li><span class="bull">4</span> Hauptkontakt schließt: Hochstrom (100–300A) fließt durch Motor</li>
+        <li><span class="bull">5</span> Motor startet → Freilauf trennt Ritzel</li>
+        <li><span class="bull">6</span> Schlüssel los → Relais fällt ab → Ritzel zieht zurück</li>
+      </ul>
+      <div class="section-label">Sollwerte</div>
+      <div class="val-grid"><div class="val-card highlight"><div class="vc-label">Starterstrom</div><div class="vc-value">100–300 A</div><div class="vc-note">Strommesszange</div></div>
+        <div class="val-card highlight"><div class="vc-label">Spannung am Starter beim Start</div><div class="vc-value">min. 9,5 V</div><div class="vc-note">unter 9,5V = Batterie schwach</div></div>
+        <div class="val-card"><div class="vc-label">Spannungsfall B+ Kabel</div><div class="vc-value">max. 0,5 V</div><div class="vc-note">Batterie + zum Starter</div></div>
+        <div class="val-card"><div class="vc-label">Spannungsfall Masse</div><div class="vc-value">max. 0,5 V</div><div class="vc-note">Starter – zur Karosserie</div></div>
+      </div>
+      <div class="section-label">Fehlertabelle</div>
+      <table class="kfz-table">
+        <tr><th>Symptom</th><th>Ursache</th></tr>
+        <tr><td>Kein Klicken, kein Drehen</td><td>Kein Signal an Klemme 50, Batterie leer, Hauptkontakt verbrannt, Kein Masse</td></tr>
+        <tr><td>Klickt, dreht aber nicht</td><td>Hauptkontakt verbrannt, Ankerkurzschluss</td></tr>
+        <tr><td>Dreht langsam</td><td>Batterie schwach, Spannungsfall in Kabeln, Kohlebürsten verschlissen</td></tr>
+        <tr><td>Dreht, Motor springt nicht an</td><td>Ritzel greift nicht → Zahnkranz oder Freilauf defekt</td></tr>
+        <tr><td>Schleifgeräusch nach dem Start</td><td>Ritzel zieht nicht zurück (Einrückrelais klemmt)</td></tr>
+        <tr><td>Piepen / Rattern</td><td>Batterie zu schwach, bricht unter Last ein</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== BATTERIE ========== -->
+<div class="section" id="batterie">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🔋</span>
+      <div class="tc-info"><div class="tc-title">Batterie</div><div class="tc-sub">Typen, Prüfen, Laden, Wechseln</div></div>
+      <span class="tc-badge hot">⭐ LEHRGANG K1/15</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Spannungstabelle – auswendig lernen!</div>
+      <table class="kfz-table">
+        <tr><th>Zustand</th><th>Spannung (12V)</th><th>Ladezustand</th></tr>
+        <tr><td>Voll geladen</td><td><span class="badge b-ok">12,7–12,8V</span></td><td>100%</td></tr>
+        <tr><td>Gut</td><td><span class="badge b-ok">12,5–12,6V</span></td><td>75%</td></tr>
+        <tr><td>Halb leer</td><td><span class="badge b-warn">12,2–12,4V</span></td><td>50%</td></tr>
+        <tr><td>Schwach</td><td><span class="badge b-err">12,0–12,1V</span></td><td>25%</td></tr>
+        <tr><td>Tiefentladen</td><td><span class="badge b-err">&lt;11,5V</span></td><td>defekt</td></tr>
+      </table>
+      <div class="section-label">Batterietypen</div>
+      <table class="kfz-table">
+        <tr><th>Typ</th><th>Einsatz</th><th>Besonderheit</th></tr>
+        <tr><td><b>Nassbatterie</b> (konventionell)</td><td>Ältere Fahrzeuge</td><td>Wartbar, Säuredichte prüfbar (1,27–1,28 g/cm³)</td></tr>
+        <tr><td><b>EFB</b> (Enhanced Flooded)</td><td>Einfaches Start-Stopp</td><td>Verstärkte Platten, mehr Zyklen</td></tr>
+        <tr><td><b>AGM</b> (Absorbent Glass Mat)</td><td>Intensives Start-Stopp, Rekuperation</td><td>Gel-ähnlich, auslaufsicher, KEIN Standardladegerät!</td></tr>
+      </table>
+      <div class="warn">⚠️ AGM NUR mit AGM-tauglichem Ladegerät laden! Standardladegerät zerstört AGM-Batterie (Überladung).</div>
+      <div class="section-label">Batterietest</div>
+      <ul class="kfz-list">
+        <li><span class="bull">1</span> <b>Ruhespannung:</b> Motor aus, mind. 30 Min. Wartezeit, dann DC-Volt messen</li>
+        <li><span class="bull">2</span> <b>Lasttest:</b> Hälfte des CCA-Wertes anlegen für 10 Sek. → Spannung darf nicht unter 9,5V fallen</li>
+        <li><span class="bull">3</span> <b>Batterietester (Midtronics/Bosch BAT):</b> misst Innenwiderstand, berechnet Gesundheitszustand (SOH)</li>
+        <li><span class="bull">4</span> <b>Säuredichte:</b> Hydrometer, nur Nassbatterie: 1,27–1,28 g/cm³ = 100%</li>
+      </ul><div class="section-label">CCA – Kälteprüfstrom</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> CCA = Cold Cranking Ampere (bei –18°C)</li>
+        <li><span class="bull">›</span> Steht auf Batterie z.B.: <b>580A EN / 74Ah</b></li>
+        <li><span class="bull">›</span> Beim Lasttest: 50% des CCA-Wertes anlegen</li>
+        <li class="imp"><span class="bull">!</span> Unter Last: Spannung MUSS über 9,5V bleiben</li>
+      </ul>
+      <div class="section-label">Batterie wechseln</div>
+      <ul class="kfz-list">
+        <li class="imp"><span class="bull">!</span> IMMER zuerst Minuspol (–) abklemmen!</li>
+        <li class="imp"><span class="bull">!</span> Bei modernen Fahrzeugen: Batterie im Steuergerät anmelden (Batterieregistrierung/Codierung)!</li>
+        <li><span class="bull">›</span> Sonst: falsches Lademanagement → Batterie wird nicht richtig geladen</li>
+        <li><span class="bull">›</span> Werkzeug: Diagnosegerät (ISTA, ODIS, Forscan...)</li>
+        <li><span class="bull">›</span> EFB kann NICHT durch Nassbatterie ersetzt werden (zu schwach)</li>
+        <li><span class="bull">›</span> AGM durch AGM ersetzen (gleiche Spezifikation)</li>
+      </ul>
+      <div class="section-label">Start-Stopp System</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Motor schaltet bei Fahrzeugstillstand automatisch ab</li>
+        <li><span class="bull">›</span> Starter muss sehr oft starten (100.000+ Starts)</li>
+        <li><span class="bull">›</span> Batterie muss besonders stark sein (EFB oder AGM)</li>
+        <li><span class="bull">›</span> Batteriesensor (BMS) am Minuspol: misst Strom, Spannung, Temperatur</li>
+        <li class="imp"><span class="bull">!</span> BMS bei Batteriewechsel auch tauschen oder zurücksetzen!</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MOTOR ========== -->
+<div class="section" id="motor">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🔧</span>
+      <div class="tc-info"><div class="tc-title">Motor – Grundlagen, Verschleiß, Diagnose</div><div class="tc-sub">Viertakt, Zylinder, Kolben, Kompression</div></div>
+      <span class="tc-badge hot">⭐ SEHR WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Viertakt-Ottomotor</div>
+      <table class="kfz-table">
+        <tr><th>Takt</th><th>Kolben</th><th>Ventile</th><th>Vorgang</th></tr>
+        <tr><td><b>1. Ansaugen</b></td><td>↓ nach unten</td><td>Einlass OFFEN</td><td>Gemisch (Luft+Benzin) ansaugen</td></tr>
+        <tr><td><b>2. Verdichten</b></td><td>↑ nach oben</td><td>alle ZU</td><td>Gemisch wird komprimiert (1:9–1:13)</td></tr>
+        <tr><td><b>3. Arbeit/Zünden</b></td><td>↓ nach unten</td><td>alle ZU</td><td>Zündkerze zündet → Verbrennung → Druck</td></tr>
+        <tr><td><b>4. Ausstoßen</b></td><td>↑ nach oben</td><td>Auslass OFFEN</td><td>Abgase raus</td></tr>
+      </table>
+      <div class="section-label">Viertakt-Dieselmotor</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Gleiche 4 Takte, aber NUR Luft wird angesaugt</li>
+        <li><span class="bull">›</span> Verdichtungsverhältnis: 1:14 bis 1:24 (viel höher als Otto)</li>
+        <li><span class="bull">›</span> Keine Zündkerze → Diesel entzündet sich durch Hitze der Kompression</li>
+        <li><span class="bull">›</span> Kraftstoff wird direkt in Zylinder eingespritzt (Direkteinspritzung)</li>
+        <li><span class="bull">›</span> Glühkerzen: zum Vorwärmen beim Kaltstart</li>
+      </ul>
+      <div class="section-label">Motorgrundmaße</div>
+      <div class="val-grid">
+        <div class="val-card"><div class="vc-label">Hubraum V</div><div class="vc-value">V = π/4 × d² × s × z</div><div class="vc-note">d=Bohrung, s=Hub, z=Zylinder</div></div>
+        <div class="val-card"><div class="vc-label">Verdichtungsverhältnis ε</div><div class="vc-value">ε = (VH + VC) / VC</div><div class="vc-note">VH=Hubraum, VC=Verdichtungsraum</div></div>
+      </div><div class="section-label">Zylinderverschleiß – wichtiges Thema!</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Oval-Verschleiß: Kolben drückt seitlich gegen Zylinderwand → elliptischer Querschnitt</li>
+        <li><span class="bull">›</span> Konischer Verschleiß: oben mehr Verschleiß als unten (höherer Druck + Temperatur oben)</li>
+        <li><span class="bull">›</span> Max. Ovalität: typisch 0,05–0,1mm (Herstellerangabe)</li>
+        <li><span class="bull">›</span> Max. Konizität: typisch 0,05mm</li>
+        <li class="imp"><span class="bull">!</span> Messen mit: Innenmessschraube (Teleskopmaßstab + Bügelmessschraube)</li>
+        <li class="imp"><span class="bull">!</span> An 3 Stellen messen: oben (OT), Mitte, unten (UT) und je 90° gedreht</li>
+      </ul>
+      <div class="section-label">Kompressionsprüfung</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Motor warm, alle Zündkerzen raus (Otto) oder Glühkerzen raus (Diesel)</li>
+        <li><span class="bull">›</span> Drosselklappe voll geöffnet (Gaspedal durchdrücken)</li>
+        <li><span class="bull">›</span> Kompressionsmessgerät in Kerzenöffnung einsetzen</li>
+        <li><span class="bull">›</span> Motor andrehen (mindestens 200–300 U/min)</li>
+        <li class="imp"><span class="bull">!</span> Sollwert Otto: 8–14 bar | Diesel: 25–35 bar</li>
+        <li class="imp"><span class="bull">!</span> Abweichung zwischen Zylindern: max. 10%</li>
+        <li><span class="bull">›</span> Niedrige Kompression → Kolbenringe verschlissen, Ventile undicht, Zylinderkopfdichtung defekt</li>
+      </ul>
+      <div class="section-label">Druckverlustprüfung</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Kolben auf OT (Verdichtungstakt), Druckluft einblasen</li>
+        <li><span class="bull">›</span> Verlust messen: Soll unter 10–15%</li>
+        <li><span class="bull">›</span> Luft am Auspuff: Auslassventil undicht</li>
+        <li><span class="bull">›</span> Luft am Ansaugtrakt: Einlassventil undicht</li>
+        <li><span class="bull">›</span> Luft im Ölmessstab: Kolbenringe verschlissen</li>
+        <li><span class="bull">›</span> Luft im Kühlmittelausgleichsbehälter: Zylinderkopfdichtung defekt</li>
+      </ul>
+      <div class="section-label">Ölverbrauch</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Normal: max. 0,5–1L auf 1000km</li>
+        <li><span class="bull">›</span> Hoher Ölverbrauch Ursachen: verschlissene Kolbenringe, defekte Ventilschaftdichtungen, Turboladerschaden</li>
+        <li><span class="bull">›</span> Blaurauch = Öl verbrennt im Zylinder</li>
+        <li><span class="bull">›</span> Weißrauch = Kühlmittel verbrennt (Zylinderkopfdichtung)</li>
+        <li><span class="bull">›</span> Schwarzrauch = zu viel Kraftstoff (Diesel: Einspritzung, Turbo)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== KÜHLUNG ========== -->
+<div class="section" id="kühlung">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🌡️</span>
+      <div class="tc-info"><div class="tc-title">Kühlsystem</div><div class="tc-sub">Wasserkreislauf, Thermostat, Kühler, Frostschutz</div></div>
+      <span class="tc-badge mid">⭐ WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Funktion</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Hält Motortemperatur konstant bei ca. 80–95°C</li>
+        <li><span class="bull">›</span> Zu kalt: mehr Verbrauch, Schlammbildung im Öl</li>
+        <li><span class="bull">›</span> Zu heiß: Motorschaden (Kolbenfresser, Kopfdichtung)</li>
+      </ul>
+      <div class="section-label">Kreislauf</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Wasserpumpe (vom Motor angetrieben) pumpt Kühlmittel</li>
+        <li><span class="bull">›</span> Kleiner Kreislauf (kalt): Thermostat geschlossen → Kühlmittel geht direkt zum Motor zurück</li><li><span class="bull">›</span> Großer Kreislauf (warm): Thermostat öffnet → Kühlmittel fließt durch Kühler</li>
+        <li><span class="bull">›</span> Ausgleichsbehälter: gleicht Volumenänderungen aus (Druck ~1,4 bar)</li>
+      </ul>
+      <div class="section-label">Thermostat</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Öffnet bei ca. 80–87°C (Dehnstoffthermostat, Wachs ausdehnt sich)</li>
+        <li><span class="bull">›</span> Ist er ständig offen: Motor wird nicht warm (schlechte Heizleistung, mehr Verbrauch)</li>
+        <li><span class="bull">›</span> Ist er ständig geschlossen: Motor überhitzt</li>
+        <li><span class="bull">›</span> Prüfen: im Wasserbad erhitzen, prüfen ab wann er öffnet</li>
+      </ul>
+      <div class="section-label">Kühlmittel</div>
+      <div class="val-grid">
+        <div class="val-card highlight"><div class="vc-label">Frostschutz-Mischung</div><div class="vc-value">50:50</div><div class="vc-note">→ schützt bis –35°C</div></div>
+        <div class="val-card"><div class="vc-label">Siedepunkt (Druck)</div><div class="vc-value">~120°C</div><div class="vc-note">durch Überdruck im System</div></div>
+        <div class="val-card"><div class="vc-label">Systemdruck</div><div class="vc-value">1,2–1,5 bar</div><div class="vc-note">Überdruckventil im Deckel</div></div>
+        <div class="val-card"><div class="vc-label">Frostschutz prüfen</div><div class="vc-value">Refraktometer</div><div class="vc-note">oder Röhrenprüfer</div></div>
+      </div>
+      <div class="warn">⚠️ Kühlsystem unter Druck NIEMALS heißen Deckel öffnen! Verbrühungsgefahr!</div>
+      <div class="section-label">Kühlerlüfter</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Mechanisch (Keilriemen) oder elektrisch</li>
+        <li><span class="bull">›</span> Elektrisch: wird per PWM oder Relais gesteuert (Temperatursensor)</li>
+        <li><span class="bull">›</span> Elektrischer Lüfter: schaltet bei ca. 90–95°C an</li>
+      </ul>
+      <div class="section-label">Häufige Fehler</div>
+      <table class="kfz-table">
+        <tr><th>Symptom</th><th>Ursache</th></tr>
+        <tr><td>Motor überhitzt schnell</td><td>Kühlmittelmangel, Thermostat klemmt zu, Wasserpumpe defekt, Luftblase im System</td></tr>
+        <tr><td>Motor wird nicht warm</td><td>Thermostat klemmt auf, Temperatursensor defekt</td></tr>
+        <tr><td>Weißer Rauch</td><td>Kühlmittel verbrennt → Zylinderkopfdichtung defekt</td></tr>
+        <tr><td>Kühlmittelverlust ohne Leck</td><td>Zylinderkopfdichtung defekt (Kühlmittel in Verbrennungsraum)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ÖLSYSTEM ========== -->
+<div class="section" id="schmierung">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🛢️</span>
+      <div class="tc-info"><div class="tc-title">Ölsystem / Schmierung</div><div class="tc-sub">Kreislauf, Viskosität, Druck, Verbrauch</div></div>
+      <span class="tc-badge mid">⭐ WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Aufgaben des Motoröls</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Schmieren (Reibung reduzieren)</li>
+        <li><span class="bull">›</span> Kühlen (Wärme abtransportieren)</li>
+        <li><span class="bull">›</span> Reinigen (Schmutz in Schwebe halten)</li>
+        <li><span class="bull">›</span> Dichten (Kolbenringe)</li>
+        <li><span class="bull">›</span> Korrosionsschutz</li>
+      </ul>
+      <div class="section-label">Ölkreislauf</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Ölwanne → Ölpumpe (Zahnradpumpe) → Ölfilter → Ölkühler → Schmierstellen</li>
+        <li><span class="bull">›</span> Druckumlaufschmierung: Öl wird unter Druck zu allen Lagern gepumpt</li>
+        <li><span class="bull">›</span> Öldrucksensor: Warnleuchte bei Öldruck unter 0,3–0,5 bar</li>
+      </ul>
+      <div class="section-label">Viskosität – SAE-Klassen</div><table class="kfz-table">
+        <tr><th>Bezeichnung</th><th>Bedeutung</th></tr>
+        <tr><td><b>5W-30</b></td><td>5W = Winterviskosität (Kaltstart), 30 = Sommerviskosität</td></tr>
+        <tr><td><b>niedrige W-Zahl</b></td><td>dünnflüssiger bei Kälte → besser für Kaltstart</td></tr>
+        <tr><td><b>hohe Sommerzahl</b></td><td>dickflüssiger bei Hitze → besser für hohe Temperaturen</td></tr>
+        <tr><td><b>5W-30 vs 5W-40</b></td><td>5W-40 dicker bei Betriebstemperatur → für ältere Motoren mit Verschleiß</td></tr>
+      </table>
+      <div class="val-grid">
+        <div class="val-card highlight"><div class="vc-label">Öldruck (Warmbetrieb Leerlauf)</div><div class="vc-value">1,0–3,0 bar</div><div class="vc-note">je nach Motor</div></div>
+        <div class="val-card"><div class="vc-label">Öldruck (Vollast)</div><div class="vc-value">3–6 bar</div><div class="vc-note">Herstellerangabe</div></div>
+        <div class="val-card"><div class="vc-label">Ölwechselintervall</div><div class="vc-value">15.000–30.000 km</div><div class="vc-note">oder jährlich</div></div>
+        <div class="val-card"><div class="vc-label">Normal-Ölverbrauch</div><div class="vc-value">max. 1L / 1000km</div><div class="vc-note">besser: unter 0,5L</div></div>
+      </div>
+      <div class="section-label">Ölfilter</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Wechseln immer beim Ölwechsel</li>
+        <li><span class="bull">›</span> Bypass-Ventil: öffnet wenn Filter verstopft (Öl fließt ungefiltert durch) → besser als kein Öl</li>
+        <li><span class="bull">›</span> Rückschlagventil: verhindert Entleeren bei abgestelltem Motor</li>
+      </ul>
+      <div class="section-label">Ölstand prüfen</div>
+      <ul class="kfz-list">
+        <li><span class="bull">1</span> Motor warm, dann 5 Minuten abstellen</li>
+        <li><span class="bull">2</span> Peilstab raus, abwischen, wieder rein, raus</li>
+        <li class="imp"><span class="bull">!</span> Zwischen MIN und MAX = OK | über MAX = zu viel (Motor läuft rauer, Öl schäumt)</li>
+        <li><span class="bull">›</span> Ölfarbe prüfen: schwarz = verbrannt/alt; milchig = Wasser im Öl (Kopfdichtung!)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SENSOREN ========== -->
+<div class="section" id="sensoren">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">📡</span>
+      <div class="tc-info"><div class="tc-title">Motorsensoren</div><div class="tc-sub">CKP, CMP, MAF, MAP, TPS, Lambda, KlopfSensor</div></div>
+      <span class="tc-badge hot">⭐ LEHRGANG K1/15</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Kurbelwellensensor CKP (Crankshaft Position)</div>
+      <table class="kfz-table">
+        <tr><th>Eigenschaft</th><th>Wert</th></tr>
+        <tr><td>Aufgabe</td><td>Drehzahl + Kurbelwellenposition → Einspritz- und Zündzeitpunkt</td></tr>
+        <tr><td>Geberrad</td><td>60–2 Zähne (Lücke = OT-Referenzmarke)</td></tr>
+        <tr><td>Typ 1: Induktiv</td><td>Widerstand: 200–1000Ω; Signal: AC-Sinuswelle</td></tr>
+        <tr><td>Typ 2: Hall</td><td>Versorgung: 5V; Signal: 0V/5V Rechteck</td></tr>
+        <tr><td>Ohne Signal</td><td>Motor startet NICHT</td></tr>
+      </table>
+      <div class="section-label">Nockenwellensensor CMP (Camshaft Position)</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Bestimmt welcher Zylinder als nächstes zündet (Phasenerkennung)</li>
+        <li><span class="bull">›</span> Für sequenzielle Einspritzung nötig</li>
+        <li><span class="bull">›</span> Meist Hall-Sensor, 1 Zahn oder ungleichmäßiges Geberrad</li>
+        <li><span class="bull">›</span> Bei Ausfall: Motor läuft meist noch, aber nicht optimal</li>
+      </ul>
+      <div class="section-label">Luftmassenmesser MAF (Mass Air Flow)</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Misst angesaugte Luftmasse (g/s oder kg/h)</li><li><span class="bull">›</span> Prinzip: Heißfilm-Luftmassenmesser (Hitzdrahtsensor)</li>
+        <li><span class="bull">›</span> Versorgung: 5V oder 12V, Signalspannung: 0–5V (proportional zur Luftmasse)</li>
+        <li class="imp"><span class="bull">!</span> Defekt: Motor läuft mit Ersatzkennfeld (Notprogramm), schlechte Leistung, mehr Verbrauch</li>
+        <li><span class="bull">›</span> Kann mit MAF-Reiniger gereinigt werden (Messdrähte vorsichtig)</li>
+      </ul>
+      <div class="section-label">Saugrohrdruck MAP (Manifold Absolute Pressure)</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Misst Druck im Saugrohr → berechnet Luftmasse</li>
+        <li><span class="bull">›</span> Zündung EIN, Motor aus: ca. 1 bar (Umgebungsdruck)</li>
+        <li><span class="bull">›</span> Motor läuft: Unterdruck ca. 0,3–0,7 bar je nach Last</li>
+        <li><span class="bull">›</span> Vollgas: fast 1 bar</li>
+      </ul>
+      <div class="section-label">Drosselklappensensor TPS</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Potentiometer: Spannung 0–5V proportional zum Öffnungswinkel</li>
+        <li><span class="bull">›</span> Geschlossen: 0,5–0,7V | Vollgas: 4,2–4,8V</li>
+        <li><span class="bull">›</span> Oft doppelter Sensor (Redundanz) für Sicherheit</li>
+        <li class="imp"><span class="bull">!</span> Nach Tausch: Grundeinstellung (Adaption) nötig!</li>
+      </ul>
+      <div class="section-label">Lambdasonde (O2-Sensor)</div>
+      <table class="kfz-table">
+        <tr><th>Typ</th><th>Signal</th><th>Lambda-Wert</th></tr>
+        <tr><td>Sprung-Lambdasonde (Breitband)</td><td>springt zwischen 0,1V (mager) und 0,9V (fett)</td><td>λ=1 = ideales Gemisch</td></tr>
+        <tr><td>Breitband-Lambdasonde (LSU)</td><td>lineares Stromsignal oder Spannungssignal</td><td>λ=0,8–1,5 messbar</td></tr>
+        <tr><td>Heizkontrolle</td><td>PWM-Signal zum Heizelement (schneller auf Betriebstemperatur)</td><td>Betriebstemp: 350–400°C</td></tr>
+      </table>
+      <ul class="kfz-list">
+        <li class="imp"><span class="bull">!</span> λ = 1: stöchiometrisch (14,7 kg Luft / 1 kg Benzin)</li>
+        <li><span class="bull">›</span> λ &lt; 1: fettes Gemisch (mehr Kraftstoff als Luft)</li>
+        <li><span class="bull">›</span> λ &gt; 1: mageres Gemisch (mehr Luft als Kraftstoff)</li>
+      </ul>
+      <div class="section-label">Klopfsensor</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Piezoelektrischer Sensor am Motorblock</li>
+        <li><span class="bull">›</span> Erkennt Klopfen (unkontrollierte Selbstzündung)</li>
+        <li><span class="bull">›</span> Steuergerät verzögert bei Klopfen den Zündzeitpunkt</li>
+        <li><span class="bull">›</span> Defekt: Zündzeitpunkt maximal spät → Leistungsverlust</li>
+      </ul>
+      <div class="section-label">Temperatursensoren</div>
+      <table class="kfz-table">
+        <tr><th>Sensor</th><th>Typ</th><th>Widerstand</th></tr>
+        <tr><td>Kühlmitteltemperatursensor (ECT)</td><td>NTC (negativer Temperaturkoeffizient)</td><td>kalt (~20°C): 2000–3000Ω; warm (~90°C): 100–300Ω</td></tr>
+        <tr><td>Ansauglufttemperatursensor (IAT)</td><td>NTC</td><td>gleich wie ECT</td></tr>
+        <tr><td>Öltemperatursensor</td><td>NTC</td><td>wie ECT</td></tr>
+      </table>
+      <div class="info">ℹ️ NTC-Sensor: Widerstand wird KLEINER wenn Temperatur steigt. (Umgekehrt PTC: wird GRÖSSER)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MOTORSTEUERUNG ========== -->
+<div class="section" id="motorsteuerung">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🖥️</span>
+      <div class="tc-info"><div class="tc-title">Motorsteuerung – Bauteile</div><div class="tc-sub">Einspritzung, Zündung, Steuergerät, Fehlerdiagnose</div></div>
+      <span class="tc-badge hot">⭐ SEHR WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Motorsteuergerät (ECM/ECU)</div>
+      <ul class="kfz-list"><li><span class="bull">›</span> Rechnet anhand aller Sensoren die Einspritz- und Zündparameter aus</li>
+        <li><span class="bull">›</span> Speichert Fehlercodes (DTC = Diagnostic Trouble Codes)</li>
+        <li><span class="bull">›</span> Adaptiert Kennfelder (Langzeitanpassung → Lambdaadaption)</li>
+      </ul>
+      <div class="section-label">Einspritzung – Otto (Benzin)</div>
+      <table class="kfz-table">
+        <tr><th>System</th><th>Einspritzort</th><th>Druck</th></tr>
+        <tr><td>Saugrohreinspritzung MPI/PFI</td><td>Einlasskanal vor Ventil</td><td>3–5 bar</td></tr>
+        <tr><td>Direkteinspritzung GDI/FSI/TFSI</td><td>Direkt in Brennraum</td><td>50–200 bar</td></tr>
+      </table>
+      <div class="section-label">Einspritzung – Diesel</div>
+      <table class="kfz-table">
+        <tr><th>System</th><th>Druck</th></tr>
+        <tr><td>Common-Rail (CR)</td><td>1600–2500 bar (Hochdruckspeicher = Rail)</td></tr>
+        <tr><td>Pumpe-Düse (PD)</td><td>bis 2200 bar</td></tr>
+      </table>
+      <div class="warn">⚠️ Hochdrucksystem Diesel: NIEMALS Leitung am laufenden Motor öffnen! Einspritzstrahl kann Haut durchschneiden.</div>
+      <div class="section-label">Zündung – Otto</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Zündkerze erzeugt Funken → zündet Gemisch</li>
+        <li><span class="bull">›</span> Zündzeitpunkt: vor OT (Grad Kurbelwelle = °KW vor OT)</li>
+        <li><span class="bull">›</span> Früher Zündzeitpunkt: mehr Leistung, aber Klopfgefahr</li>
+        <li><span class="bull">›</span> Zündspule: transformiert 12V → 30.000–40.000V</li>
+        <li><span class="bull">›</span> Zündspannung prüfen: Oszi (Zündkerze erzeugt Hochspannungsimpuls)</li>
+        <li class="imp"><span class="bull">!</span> Zündkerzen-Elektrodenabstand: 0,7–1,1mm (Herstellerangabe)</li>
+      </ul>
+      <div class="section-label">Diagnose – OBD2</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> OBD2 = On Board Diagnostics 2 (seit 2001 Pflicht EU)</li>
+        <li><span class="bull">›</span> 16-poliger Diagnosestecker (OBD2-Port) meist unter Armaturenbrett</li>
+        <li><span class="bull">›</span> Fehlercodes: P = Powertrain, B = Body, C = Chassis, U = Network</li>
+        <li><span class="bull">›</span> P0300 = Zündaussetzer zufällig | P0171 = System zu mager</li>
+        <li><span class="bull">›</span> Freeze Frame: Momentaufnahme der Sensorwerte beim Fehlerauftritt</li>
+        <li class="imp"><span class="bull">!</span> Fehlerspeicher löschen ohne Reparatur = Fehler kommt zurück!</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== BREMSE ========== -->
+<div class="section" id="bremse">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🛑</span>
+      <div class="tc-info"><div class="tc-title">Bremse</div><div class="tc-sub">Scheibe, Trommel, Hydraulik, ABS/ESP</div></div>
+      <span class="tc-badge hot">⭐ SEHR WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Bremsanlage – Übersicht</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Zweikreis-Bremssystem (vorne + hinten oder diagonal)</li>
+        <li><span class="bull">›</span> Hydraulische Übertragung: Bremspedal → Hauptbremszylinder → Bremsleitungen → Bremssättel</li>
+        <li><span class="bull">›</span> Bremskraftverstärker (Unterdruck): verstärkt Pedalkraft 3–4× (Servo)</li>
+      </ul>
+      <div class="section-label">Scheibenbremse</div>
+      <table class="kfz-table">
+        <tr><th>Bauteil</th><th>Soll</th><th>Prüfung</th></tr>
+        <tr><td>Bremsscheibe Dicke</td><td>Laut Aufdruck auf Scheibe (min. Verschleißmaß)</td><td>Messschieber / Mikrometer</td></tr>
+        <tr><td>Seitenschlag (Scheibendickenunterschied)</td><td>max. 0,015–0,03mm</td><td>Messuhr an Scheibe</td></tr>
+        <tr><td>Belagstärke</td><td>min. 2mm (Warnung), tauschen ab ≤2mm</td><td>Sichtprüfung oder Messschieber</td></tr><tr><td>Bremssattel</td><td>Kolben muss gleichmäßig zurückdrücken</td><td>Kolben eindrücken (Spezialwerkzeug)</td></tr>
+      </table>
+      <div class="section-label">Trommelbremse</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Meistens hinten (oder Handbremse)</li>
+        <li><span class="bull">›</span> Backenbremse: Radbremszylinder drückt Bremsbacken gegen Trommel</li>
+        <li><span class="bull">›</span> Trommelinnendurchmesser prüfen: max. Verschleißmaß aufgestempelt</li>
+        <li><span class="bull">›</span> Bremsbackenbelag min. 1,5–2mm</li>
+      </ul>
+      <div class="section-label">Bremsflüssigkeit</div>
+      <div class="val-grid">
+        <div class="val-card highlight"><div class="vc-label">Siedepunkt frisch (DOT4)</div><div class="vc-value">min. 230°C</div><div class="vc-note">trocken (kein Wasser)</div></div>
+        <div class="val-card"><div class="vc-label">Siedepunkt gebraucht (DOT4)</div><div class="vc-value">min. 155°C</div><div class="vc-note">nass (2% Wasser)</div></div>
+        <div class="val-card"><div class="vc-label">Wechselintervall</div><div class="vc-value">2 Jahre</div><div class="vc-note">oder nach Wassergehalt</div></div>
+        <div class="val-card"><div class="vc-label">Wassergehalt max.</div><div class="vc-value">3,5%</div><div class="vc-note">dann tauschen!</div></div>
+      </div>
+      <div class="warn">⚠️ Bremsflüssigkeit ist hygroskopisch (zieht Wasser an). Wasser senkt Siedepunkt → Dampfblasen → Bremse versagt!</div>
+      <div class="section-label">ABS (Anti-Blockier-System)</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Verhindert Blockieren der Räder beim Bremsen</li>
+        <li><span class="bull">›</span> Radgeschwindigkeitssensoren (aktiv = Hall) an jedem Rad</li>
+        <li><span class="bull">›</span> ABS-Steuergerät erkennt blockierendes Rad → Druck reduzieren → Rad dreht wieder</li>
+        <li><span class="bull">›</span> Pulsieren am Pedal = ABS arbeitet (normal!)</li>
+        <li class="imp"><span class="bull">!</span> ABS verkürzt NICHT immer den Bremsweg, aber das Fahrzeug bleibt lenkbar</li>
+        <li><span class="bull">›</span> ABS-Warnleuchte: Sensor defekt, Zahnkranz beschädigt, Kabel</li>
+      </ul>
+      <div class="section-label">ESP (Elektronisches Stabilitätsprogramm)</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Basis: ABS + weitere Sensoren</li>
+        <li><span class="bull">›</span> Gierratensensor: misst Drehung um Hochachse</li>
+        <li><span class="bull">›</span> Querbeschleunigungssensor</li>
+        <li><span class="bull">›</span> Bremst einzelne Räder gezielt → Fahrzeug bleibt auf Kurs</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== KUPPLUNG ========== -->
+<div class="section" id="kupplung">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🔗</span>
+      <div class="tc-info"><div class="tc-title">Kupplung</div><div class="tc-sub">Einscheiben-Trockenkupplung, Funktion, Verschleiß</div></div>
+      <span class="tc-badge mid">⭐ WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Funktion</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Trennt Kraftschluss zwischen Motor und Getriebe (beim Schalten)</li>
+        <li><span class="bull">›</span> Überträgt Motordrehmoment auf Getriebe (beim Anfahren)</li>
+        <li><span class="bull">›</span> Schützt Getriebe vor Drehmomentstößen</li>
+      </ul>
+      <div class="section-label">Aufbau Einscheiben-Trockenkupplung</div>
+      <table class="kfz-table">
+        <tr><th>Bauteil</th><th>Funktion</th></tr>
+        <tr><td><b>Schwungrad</b></td><td>Sitzt an Kurbelwelle, Gegendruckplatte</td></tr>
+        <tr><td><b>Kupplungsscheibe</b></td><td>Belagscheibe mit Torsionsfedern (Dämpfer), auf Getriebeeingangswelle</td></tr>
+        <tr><td><b>Druckplatte</b></td><td>Presst Kupplungsscheibe gegen Schwungrad</td></tr><tr><td><b>Membranfeder</b></td><td>Hält Druckplatte gedrückt (bei Pedal loslassen = eingekuppelt)</td></tr>
+        <tr><td><b>Ausrücklager</b></td><td>Drückt bei Kupplungsbetätigung auf Membranfeder</td></tr>
+        <tr><td><b>Ausrückgabel / Zentralausrücker</b></td><td>Überträgt Pedalkraft auf Ausrücklager</td></tr>
+      </table>
+      <div class="section-label">Betätigung</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Mechanisch (Seilzug) oder hydraulisch (Geberzylinder → Nehmerzylinder)</li>
+        <li><span class="bull">›</span> Pedal treten → Ausrücklager drückt Membranfeder → Druckplatte hebt ab → getrennt</li>
+        <li><span class="bull">›</span> Pedal loslassen → Membranfeder drückt Druckplatte → Scheibe geklemmt → eingekuppelt</li>
+      </ul>
+      <div class="section-label">Verschleiß & Fehler</div>
+      <ul class="kfz-list">
+        <li class="imp"><span class="bull">!</span> Schleifgeräusch im Leerlauf = Ausrücklager defekt (dreht permanent mit)</li>
+        <li class="imp"><span class="bull">!</span> Schleifgeräusch nur bei getretenem Pedal = Ausrücklager defekt (dreht NUR beim Betätigen)</li>
+        <li><span class="bull">›</span> Kupplung rutscht (hohe Drehzahl, wenig Vortrieb) → Belag verschlissen</li>
+        <li><span class="bull">›</span> Kupplung schlägt beim Anfahren → Torsionsdämpfer defekt</li>
+        <li><span class="bull">›</span> Pedal geht zu leicht → Ausrückfeder gebrochen</li>
+        <li><span class="bull">›</span> Pedal sehr schwer → hydraulisch: Geberzylinder defekt</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HV SYSTEM ========== -->
+<div class="section" id="hv">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">⚡</span>
+      <div class="tc-info"><div class="tc-title">HV-System (Hochvolt)</div><div class="tc-sub">Hybrid / Elektro – Sicherheit, Freischalten, Aufbau</div></div>
+      <span class="tc-badge hot">⭐ PFLICHT in der Prüfung!</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Was ist HV?</div>
+      <ul class="kfz-list">
+        <li class="imp"><span class="bull">!</span> HV = Hochvolt = über 60V DC oder 25V AC</li>
+        <li><span class="bull">›</span> Hybridfahrzeuge: 100–600V DC</li>
+        <li><span class="bull">›</span> Elektrofahrzeuge (BEV): 300–900V DC</li>
+        <li><span class="bull">›</span> 48V Mild-Hybrid: technisch kein HV, aber ähnliche Sicherheitsregeln</li>
+      </ul>
+      <div class="warn">⚠️ HV-Strom ist LEBENSGEFÄHRLICH. Ohne Qualifikation (SHV/EuP) NIEMALS an HV-Bauteilen arbeiten!</div>
+      <div class="section-label">HV-Freischaltung – 5-Schritte-Regel</div>
+      <ul class="kfz-list">
+        <li><span class="bull">1</span> <b>Identifizieren:</b> Ist es ein HV-Fahrzeug? (orange Kabel, HV-Aufkleber)</li>
+        <li><span class="bull">2</span> <b>Freischalten:</b> Zündung aus, Serviceplug / HV-Trennstelle ziehen</li>
+        <li><span class="bull">3</span> <b>Gegen Wiedereinschalten sichern:</b> Schlüssel mitgenommen, Sicherung hängeschloss</li>
+        <li><span class="bull">4</span> <b>Auf Spannungsfreiheit prüfen:</b> Multimeter (>60V? = noch geladen!)</li>
+        <li><span class="bull">5</span> <b>Entladezeit abwarten:</b> 5–10 Minuten (je nach Hersteller) für Kondensatoren</li>
+      </ul>
+      <div class="section-label">Schutzausrüstung PSA</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> HV-Handschuhe Klasse 0 (bis 1000V) – IMMER vor Arbeit an HV anlegen</li>
+        <li><span class="bull">›</span> Schutzbrille</li>
+        <li><span class="bull">›</span> Nicht leitfähige Werkzeuge (VDE-Werkzeug)</li>
+        <li><span class="bull">›</span> Warnschild: "Hochspannung – Nicht berühren"</li>
+      </ul>
+      <div class="section-label">HV-Bauteile erkennen</div>
+      <table class="kfz-table">
+        <tr><th>Farbe</th><th>Bedeutung</th></tr><tr><td><span style="color:orange;font-weight:bold">ORANGE</span></td><td>HV-Kabel und Stecker</td></tr>
+        <tr><td><span style="color:red;font-weight:bold">ROT</span></td><td>HV-Batterie Plusleitung</td></tr>
+        <td><span style="color:yellow;font-weight:bold">GELB</span></td><td>Warnaufkleber</td></tr>
+      </table>
+      <div class="section-label">HV-Batterie (Traktionsbatterie)</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Lithium-Ionen (Li-Ion) oder Lithium-Polymer</li>
+        <li><span class="bull">›</span> BMS (Battery Management System): überwacht Ladezustand, Temperatur, Zellspannungen</li>
+        <li><span class="bull">›</span> SOC = State of Charge (Ladezustand in %)</li>
+        <li><span class="bull">›</span> SOH = State of Health (Alterungszustand)</li>
+        <li><span class="bull">›</span> Pyrotechnische Sicherung: trennt HV automatisch bei Unfall</li>
+        <li class="imp"><span class="bull">!</span> HV-Batterie NIEMALS kurzschließen, öffnen oder mit Wasser löschen!</li>
+      </ul>
+      <div class="section-label">Elektrischer Antriebsmotor</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Meist Synchronmotor (PSM) oder Asynchronmotor (ASM)</li>
+        <li><span class="bull">›</span> Wechselrichter (Inverter): wandelt DC aus Batterie in AC für Motor um</li>
+        <li><span class="bull">›</span> Rekuperation: Motor arbeitet als Generator → bremst + lädt Batterie</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== WARTUNG ========== -->
+<div class="section" id="wartung">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🔩</span>
+      <div class="tc-info"><div class="tc-title">Wartung / Inspektion / Service</div><div class="tc-sub">Was wird wann geprüft, Anzugsdrehmomente</div></div>
+      <span class="tc-badge mid">⭐ WICHTIG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Inspektion – typische Arbeiten</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Ölwechsel + Ölfilter</li>
+        <li><span class="bull">›</span> Luftfilter prüfen/tauschen</li>
+        <li><span class="bull">›</span> Kraftstofffilter (Diesel, je nach Intervall)</li>
+        <li><span class="bull">›</span> Zündkerzen prüfen/tauschen</li>
+        <li><span class="bull">›</span> Kühlmittel prüfen (Frostschutz, Füllstand)</li>
+        <li><span class="bull">›</span> Bremsflüssigkeit prüfen/tauschen</li>
+        <li><span class="bull">›</span> Bremsen prüfen (Beläge, Scheiben)</li>
+        <li><span class="bull">›</span> Reifen prüfen (Profil, Druck, Zustand)</li>
+        <li><span class="bull">›</span> Keilriemen/Zahnriemen prüfen</li>
+        <li><span class="bull">›</span> Alle Flüssigkeitsstände prüfen</li>
+        <li><span class="bull">›</span> Beleuchtung prüfen</li>
+        <li><span class="bull">›</span> Fehlerspeicher auslesen</li>
+      </ul>
+      <div class="section-label">Anzugsdrehmomente – Grundregeln</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Immer nach Herstellerangabe (Werkstatthandbuch oder ETKA)</li>
+        <li><span class="bull">›</span> Drehmomentschlüssel benutzen</li>
+        <li class="imp"><span class="bull">!</span> Rad-Schrauben: meist 90–130 Nm (Herstellerangabe!)</li>
+        <li><span class="bull">›</span> Räderwechsel: nach 50 km nachziehen!</li>
+        <li><span class="bull">›</span> Ölablass-Schraube: 20–30 Nm (+ neue Dichtung oder Gewindedichtung)</li>
+        <li><span class="bull">›</span> Streckschrauben: EINMAL-VERWENDUNG (bei Bremsbelägen, Kopfschrauben)</li>
+      </ul>
+      <div class="section-label">Reifenprofil + Reifendruck</div>
+      <div class="val-grid">
+        <div class="val-card highlight"><div class="vc-label">Mindestprofiltiefe (gesetzlich)</div><div class="vc-value">1,6 mm</div><div class="vc-note">empfohlen: 3mm Sommer / 4mm Winter</div></div><div class="val-card"><div class="vc-label">Reifendruck prüfen</div><div class="vc-value">Kalt</div><div class="vc-note">steht am Türrahmen oder Tankdeckel</div></div>
+      </div>
+      <div class="section-label">Zahnriemen / Keilrippenriemen</div>
+      <ul class="kfz-list">
+        <li><span class="bull">›</span> Zahnriemen: treibt Nockenwelle (und oft Wasserpumpe) an</li>
+        <li class="imp"><span class="bull">!</span> Zahnriemen reißt → Motorschaden (Ventil trifft Kolben bei Freiläufern NICHT, aber bei Interferenzmotoren = Totalschaden)</li>
+        <li><span class="bull">›</span> Wechselintervall: 60.000–120.000 km oder 5–8 Jahre (Herstellerangabe)</li>
+        <li><span class="bull">›</span> Keilrippenriemen: treibt Generator, Servolenkung, Klimakompressor, Wasserpumpe</li>
+        <li><span class="bull">›</span> Spannung prüfen: Riemenspanner, kein Flattern</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========== FORMELN ========== -->
+<div class="section" id="formeln">
+  <div class="topic-card">
+    <div class="tc-head open" onclick="tog(this)">
+      <span class="tc-icon">🧮</span>
+      <div class="tc-info"><div class="tc-title">Alle Formeln – Zusammenfassung</div><div class="tc-sub">Auswendig lernen!</div></div>
+      <span class="tc-badge hot">⭐ IN JEDER PRÜFUNG</span>
+      <span class="tc-chev">▼</span>
+    </div>
+    <div class="tc-body open">
+      <div class="section-label">Elektrische Grundgrößen</div>
+      <div class="formula">
+        <div class="f-comment">// Ohmsches Gesetz</div>
+        <div class="f-line">U = R × I   |   I = U/R   |   R = U/I</div>
+        <div class="f-comment">// Leistung</div>
+        <div class="f-line">P = U × I   |   P = U²/R   |   P = I² × R</div>
+        <div class="f-comment">// Energie (Arbeit)</div>
+        <div class="f-line">W = P × t   (W = Wh, P = W, t = h)</div>
+      </div>
+      <div class="section-label">Schaltungen</div>
+      <div class="formula">
+        <div class="f-comment">// Reihenschaltung</div>
+        <div class="f-line">R_ges = R1 + R2 + R3</div>
+        <div class="f-line">U_ges = U1 + U2 + U3   (I = gleich!)</div>
+        <div class="f-comment">// Parallelschaltung</div>
+        <div class="f-line">1/R_ges = 1/R1 + 1/R2 + 1/R3</div>
+        <div class="f-line">I_ges = I1 + I2 + I3   (U = gleich!)</div>
+        <div class="f-comment">// 2 Widerstände parallel (Schnellformel)</div>
+        <div class="f-line">R_ges = (R1 × R2) / (R1 + R2)</div>
+      </div>
+      <div class="section-label">PWM / Frequenz</div>
+      <div class="formula">
+        <div class="f-comment">// Tastverhältnis</div>
+        <div class="f-line">TV(%) = (t_ein / T) × 100</div>
+        <div class="f-line">U_mittel = U_max × TV / 100</div>
+        <div class="f-comment">// Frequenz</div>
+        <div class="f-line">f = 1 / T   |   T = 1 / f</div>
+        <div class="f-result">Beispiel: T=10ms → f=100Hz | TV=30%, U_max=12V → U_mittel=3,6V</div>
+      </div>
+      <div class="section-label">Leitungswiderstand</div>
+      <div class="formula">
+        <div class="f-line">R = (ρ × l) / A</div>
+        <div class="f-comment">ρ(Kupfer) = 0,0178 Ω·mm²/m | l = Länge (m) | A = Querschnitt (mm²)</div>
+        <div class="f-result">Beispiel: l=5m, A=2,5mm² → R = (0,0178×5)/2,5 = 0,036Ω</div>
+      </div>
+      <div class="section-label">Motorformeln</div>
+      <div class="formula">
+        <div class="f-comment">// Hubraum</div>
+        <div class="f-line">V_H = (π/4) × d² × s × z</div>
+        <div class="f-comment">d = Bohrungsdurchmesser, s = Kolbenhub, z = Zylinderanzahl</div>
+        <div class="f-comment">// Verdichtungsverhältnis</div>
+        <div class="f-line">ε = (V_H + V_C) / V_C</div>
+        <div class="f-comment">V_H = Hubraum eines Zylinders, V_C = Verdichtungsraum</div>
+        <div class="f-comment">// Mitteldruck / Drehmoment / Leistung</div>
+        <div class="f-line">P = M × ω = M × 2π × n/60</div>
+        <div class="f-comment">P = Leistung(W), M = Drehmoment(Nm), n = Drehzahl(1/min)</div>
+      </div><div class="section-label">Übersetzung</div>
+      <div class="formula">
+        <div class="f-line">i = n_ab / n_an = z_an / z_ab</div>
+        <div class="f-comment">i &gt;1: Untersetzung (langsamer), i &lt;1: Übersetzung (schneller)</div>
+        <div class="f-line">M_ab = M_an × i × η</div>
+        <div class="f-comment">η = Wirkungsgrad (meist 0,95–0,98)</div>
+      </div>
+      <div class="section-label">Lichtwand / Scheinwerfer</div>
+      <div class="formula">
+        <div class="f-comment">// HDG-Position bei Abstand a</div>
+        <div class="f-line">h_HDG = h_Einbau - (a × 0,01)</div>
+        <div class="f-result">Beispiel: Einbauhöhe 0,65m, Abstand 10m → HDG bei 0,65-0,10 = 0,55m</div>
+      </div>
+      <div class="section-label">Batteriekapazität</div>
+      <div class="formula">
+        <div class="f-line">Q = I × t   (Ah = A × h)</div>
+        <div class="f-comment">Q = Kapazität (Ah), I = Strom (A), t = Zeit (h)</div>
+        <div class="f-result">Beispiel: Batterie 80Ah bei 20A Entladung → 80/20 = 4h Entladedauer</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// Countdown
+const pruef = new Date('2026-05-04T08:00:00');
+const diff = Math.ceil((pruef - new Date()) / 86400000);
+document.getElementById('cddays').textContent = diff > 0 ? diff : '0';
+
+// Section switch
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  const ids = ['home','grundlagen','bordnetz','generator','starter','batterie','motor','kühlung','schmierung','sensoren','motorsteuerung','bremse','kupplung','hv','wartung','formeln'];
+  const idx = ids.indexOf(id);
+  document.querySelectorAll('nav button')[idx].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Toggle
+function tog(h) {
+  h.classList.toggle('open');
+  h.nextElementSibling.classList.toggle('open');
+}
+
+// Mini toggle
+function mtog(h) {
+  h.classList.toggle('open');
+  h.nextElementSibling.classList.toggle('show');
+}
+
+// Search
+function searchContent(q) {
+  if (!q || q.length < 2) return;
+  const term = q.toLowerCase();
+  const ids = ['grundlagen','bordnetz','generator','starter','batterie','motor','kühlung','schmierung','sensoren','motorsteuerung','bremse','kupplung','hv','wartung','formeln'];
+  let found = '';
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.textContent.toLowerCase().includes(term)) {
+      const btn = document.querySelector(`[onclick="show('${id}')"]`);
+      const name = btn ? btn.textContent.trim() : id;
+      found += name + ', ';
+    }
+  });
+  if (found) {
+    const inp = document.getElementById('searchInput');
+    inp.style.borderColor = '#39ff88';
+    inp.title = 'Gefunden in: ' + found;
+  }
+}
+
+// Open all headers on start for the visible section
+document.querySelectorAll('.tc-head.open').forEach(h => {
+  h.nextElementSibling.classList.add('open');
+});
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(registration => console.log('SW registered'))
+      .catch(error => console.log('SW registration failed'));
+  });
+}
+</script>
+</body>
+</html>
